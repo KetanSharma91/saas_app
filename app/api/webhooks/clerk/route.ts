@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { clerkClient } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -30,6 +29,7 @@ export async function POST(req: Request) {
 
   const wh = new Webhook(WEBHOOK_SECRET);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let evt: Record<string, any>; // fallback to avoid TypeScript complaints
   try {
     evt = wh.verify(body, {
