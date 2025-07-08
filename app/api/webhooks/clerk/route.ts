@@ -1,5 +1,4 @@
-import { clerkClient } from "@clerk/nextjs/server";
-import { WebhookEvent } from "@clerk/nextjs/server";
+import { WebhookEvent, clerkClient } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
@@ -73,11 +72,12 @@ export async function POST(req: Request) {
 
     // Set public metadata
     if (newUser) {
-      await clerkClient.users.updateUserMetadata(id, {
+      // eslint-disable-next-line
+      (await (clerkClient as any).users.updateUserMetadata(id, {
         publicMetadata: {
           userId: newUser._id,
         },
-      });
+      }));
     }
 
     return NextResponse.json({ message: "OK", user: newUser });
