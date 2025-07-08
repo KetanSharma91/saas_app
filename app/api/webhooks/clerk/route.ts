@@ -5,6 +5,18 @@ import { Webhook } from "svix";
 
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 
+type ClerkEvent = {
+  data: {
+    id: string;
+    email_addresses?: { email_address: string }[];
+    username?: string;
+    first_name?: string;
+    last_name?: string;
+    image_url?: string;
+  };
+  type: string;
+};
+
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
@@ -15,40 +27,43 @@ export async function POST(req: Request) {
   }
 
   // Get Svix headers
-  const headerPayload = headers();
+  const headerPayload = await headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
+
   if (!svix_id || !svix_timestamp || !svix_signature) {
     return new Response("Missing svix headers", { status: 400 });
   }
+
+  // Now svix_* are string
+
 
   const payload = await req.json();
   const body = JSON.stringify(payload);
 
   const wh = new Webhook(WEBHOOK_SECRET);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let evt: Record<string, any>; // fallback to avoid TypeScript complaints
+  let evt: ClerkEvent;
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
       "svix-timestamp": svix_timestamp,
       "svix-signature": svix_signature,
-    });
+    }) as ClerkEvent;
   } catch (err) {
     console.error("❌ Webhook verification failed:", err);
     return new Response("Invalid signature", { status: 400 });
   }
 
-  const eventType = evt.type as string;
+  const eventType = evt.type;
 
   switch (eventType) {
     case "user.created": {
       const data = evt.data;
       const user = {
-        clerkId: data.id as string,
+        clerkId: data.id,
         email: data.email_addresses?.[0]?.email_address ?? "",
         username: data.username ?? "",
         firstName: data.first_name ?? "",
@@ -59,7 +74,10 @@ export async function POST(req: Request) {
       const newUser = await createUser(user);
 
       if (newUser) {
-        await clerkClient.users.updateUserMetadata(data.id as string, {
+        const client = await clerkClient();
+
+
+        await client.users.updateUserMetadata(data.id, {
           publicMetadata: {
             userId: newUser._id,
           },
@@ -79,7 +97,7 @@ export async function POST(req: Request) {
         photo: data.image_url ?? "",
       };
 
-      const updatedUser = await updateUser(data.id as string, user);
+      const updatedUser = await updateUser(data.id, user);
 
       return NextResponse.json({ message: "OK", user: updatedUser });
     }
@@ -87,7 +105,7 @@ export async function POST(req: Request) {
     case "user.deleted": {
       const data = evt.data;
 
-      const deletedUser = await deleteUser(data.id as string);
+      const deletedUser = await deleteUser(data.id);
 
       return NextResponse.json({ message: "OK", user: deletedUser });
     }
