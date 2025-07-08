@@ -1,5 +1,3 @@
-/* eslint-disable prefer-const */
-/* eslint-disable no-prototype-builtins */
 import { type ClassValue, clsx } from "clsx";
 import qs from "qs";
 import { twMerge } from "tailwind-merge";
@@ -85,18 +83,39 @@ export function removeKeysFromQuery({
 }
 
 // DEBOUNCE
-export const debounce = (func: (...args: any[]) => void, delay: number) => {
-  let timeoutId: NodeJS.Timeout | null;
-  return (...args: any[]) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => func.apply(null, args), delay);
+
+// export const debounce = (func: (...args: any[]) => void, delay: number) => {
+//   let timeoutId: NodeJS.Timeout | null;
+//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+//   return (...args: any[]) => {
+//     if (timeoutId) clearTimeout(timeoutId);
+//     timeoutId = setTimeout(() => func.apply(null, args), delay);
+//   };
+// };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce<T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+): (...args: Parameters<T>) => void {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return (...args: Parameters<T>) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
   };
-};
+}
+
 
 // GE IMAGE SIZE
 export type AspectRatioKey = keyof typeof aspectRatioOptions;
 export const getImageSize = (
   type: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   image: any,
   dimension: "width" | "height"
 ): number => {
@@ -131,14 +150,15 @@ export const download = (url: string, filename: string) => {
 };
 
 // DEEP MERGE OBJECTS
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const deepMergeObjects = (obj1: any, obj2: any) => {
-  if(obj2 === null || obj2 === undefined) {
+  if (obj2 === null || obj2 === undefined) {
     return obj1;
   }
 
-  let output = { ...obj2 };
+  const output = { ...obj2 };
 
-  for (let key in obj1) {
+  for (const key in obj1) {
     if (obj1.hasOwnProperty(key)) {
       if (
         obj1[key] &&

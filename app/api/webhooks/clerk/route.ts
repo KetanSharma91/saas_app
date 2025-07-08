@@ -15,16 +15,14 @@ export async function POST(req: Request) {
     );
   }
 
-  // Headers
+  // Get Svix headers
   const headerPayload = headers();
   const svix_id = headerPayload.get("svix-id");
   const svix_timestamp = headerPayload.get("svix-timestamp");
   const svix_signature = headerPayload.get("svix-signature");
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Missing svix headers", {
-      status: 400,
-    });
+    return new Response("Missing svix headers", { status: 400 });
   }
 
   const payload = await req.json();
@@ -32,7 +30,7 @@ export async function POST(req: Request) {
 
   const wh = new Webhook(WEBHOOK_SECRET);
 
-  let evt;
+  let evt: Record<string, any>; // fallback to avoid TypeScript complaints
   try {
     evt = wh.verify(body, {
       "svix-id": svix_id,
@@ -44,33 +42,24 @@ export async function POST(req: Request) {
     return new Response("Invalid signature", { status: 400 });
   }
 
-  const { id } = evt.data;
   const eventType = evt.type as string;
 
   switch (eventType) {
     case "user.created": {
-      const {
-        id,
-        email_addresses,
-        image_url,
-        first_name,
-        last_name,
-        username,
-      } = evt.data;
-
+      const data = evt.data;
       const user = {
-        clerkId: id,
-        email: email_addresses[0]?.email_address ?? "",
-        username: username ?? "",
-        firstName: first_name ?? "",
-        lastName: last_name ?? "",
-        photo: image_url ?? "",
+        clerkId: data.id as string,
+        email: data.email_addresses?.[0]?.email_address ?? "",
+        username: data.username ?? "",
+        firstName: data.first_name ?? "",
+        lastName: data.last_name ?? "",
+        photo: data.image_url ?? "",
       };
 
       const newUser = await createUser(user);
 
       if (newUser) {
-        await clerkClient.users.updateUserMetadata(id, {
+        await clerkClient.users.updateUserMetadata(data.id as string, {
           publicMetadata: {
             userId: newUser._id,
           },
@@ -81,24 +70,24 @@ export async function POST(req: Request) {
     }
 
     case "user.updated": {
-      const { id, image_url, first_name, last_name, username } = evt.data;
+      const data = evt.data;
 
       const user = {
-        firstName: first_name ?? "",
-        lastName: last_name ?? "",
-        username: username ?? "",
-        photo: image_url ?? "",
+        firstName: data.first_name ?? "",
+        lastName: data.last_name ?? "",
+        username: data.username ?? "",
+        photo: data.image_url ?? "",
       };
 
-      const updatedUser = await updateUser(id, user);
+      const updatedUser = await updateUser(data.id as string, user);
 
       return NextResponse.json({ message: "OK", user: updatedUser });
     }
 
     case "user.deleted": {
-      const { id } = evt.data;
+      const data = evt.data;
 
-      const deletedUser = await deleteUser(id);
+      const deletedUser = await deleteUser(data.id as string);
 
       return NextResponse.json({ message: "OK", user: deletedUser });
     }
