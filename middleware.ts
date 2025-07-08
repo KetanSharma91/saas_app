@@ -1,21 +1,10 @@
-// import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-import { clerkMiddleware } from '@clerk/nextjs/server'
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-// const isProtectedRoute = createRouteMatcher(['/'])
-
-// export default clerkMiddleware(async (auth, req) => {
-//   if (isProtectedRoute(req)) await auth.protect()
-// })
+const isProtectedRoute = createRouteMatcher(['/transformations(.*)', '/profile(.*)','/credits(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
-  // Allow public access to your webhook
-  if (req.nextUrl.pathname === "/api/webhooks/clerk") {
-    return;
-  }
-
-  // Protect everything else
-  await auth.protect();
-});
+  if (isProtectedRoute(req)) await auth.protect()
+})
 
 export const config = {
   matcher: [
