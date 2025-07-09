@@ -6,7 +6,16 @@ import { createUser, updateUser, deleteUser } from "@/lib/actions/user.action";
 
 export async function POST(req: NextRequest) {
   try {
-    const event = await verifyWebhook(req);
+
+    const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
+    if (!WEBHOOK_SECRET) {
+      throw new Error(
+        "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+      );
+    }
+
+    const event = await verifyWebhook(req, { signingSecret: WEBHOOK_SECRET });
 
     const { type, data } = event;
 
