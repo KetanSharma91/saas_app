@@ -9,7 +9,7 @@ import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
-  console.log('WEBHOOK_SEARCT', WEBHOOK_SECRET)
+  console.log('WEBHOOK_SECRET', WEBHOOK_SECRET);
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
@@ -29,13 +29,11 @@ export async function POST(req: Request) {
     svix_signature = headerPayload.get("svix-signature");
   } catch (err) {
     console.error("Error retrieving headers:", err);
-    return new Response("Error retrieving headers", { status: 400 });
+    return NextResponse.json({ error: "Error retrieving headers" }, { status: 400 });
   }
 
   if (!svix_id || !svix_timestamp || !svix_signature) {
-    return new Response("Error occurred -- missing svix headers", {
-      status: 400,
-    });
+    return NextResponse.json({ error: "Missing Svix headers" }, { status: 400 });
   }
 
   let payload;
@@ -46,7 +44,7 @@ export async function POST(req: Request) {
     body = JSON.stringify(payload);
   } catch (err) {
     console.error("Error parsing request body:", err);
-    return new Response("Invalid JSON body", { status: 400 });
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const wh = new Webhook(WEBHOOK_SECRET);
@@ -60,7 +58,7 @@ export async function POST(req: Request) {
     }) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
-    return new Response("Webhook verification failed", { status: 400 });
+    return NextResponse.json({ error: "Webhook verification failed" }, { status: 400 });
   }
 
   const { id } = evt.data;
@@ -85,12 +83,12 @@ export async function POST(req: Request) {
         newUser = await createUser(user);
       } catch (err) {
         console.error("Error creating user in DB:", err);
-        return new Response("Failed to create user", { status: 500 });
+        return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
       }
 
       if (newUser) {
         try {
-          // eslint-disable-next-line
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           await (clerkClient as any).users.updateUserMetadata(id, {
             publicMetadata: {
               userId: newUser._id,
@@ -98,7 +96,6 @@ export async function POST(req: Request) {
           });
         } catch (err) {
           console.error("Error updating Clerk user metadata:", err);
-          // We won't fail the whole webhook if metadata fails
         }
       }
 
@@ -121,7 +118,7 @@ export async function POST(req: Request) {
         updatedUser = await updateUser(id, user);
       } catch (err) {
         console.error("Error updating user:", err);
-        return new Response("Failed to update user", { status: 500 });
+        return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
       }
 
       return NextResponse.json({ message: "User updated", user: updatedUser });
@@ -136,7 +133,7 @@ export async function POST(req: Request) {
         deletedUser = await deleteUser(id!);
       } catch (err) {
         console.error("Error deleting user:", err);
-        return new Response("Failed to delete user", { status: 500 });
+        return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
       }
 
       return NextResponse.json({ message: "User deleted", user: deletedUser });
@@ -146,9 +143,9 @@ export async function POST(req: Request) {
     console.log(`Unhandled Clerk event: ${eventType} | ID: ${id}`);
     console.log("Webhook body:", body);
 
-    return new Response("Event ignored", { status: 200 });
+    return NextResponse.json({ message: "Event ignored" }, { status: 200 });
   } catch (err) {
     console.error("Unexpected error processing webhook:", err);
-    return new Response("Internal Server Error", { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
