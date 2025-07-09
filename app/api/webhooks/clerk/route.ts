@@ -7,7 +7,9 @@ import { Webhook } from "svix";
 import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 
 export async function POST(req: Request) {
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+  // const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
+  const WEBHOOK_SECRET = "whsec_/LLeVSP/1nqO+UWGkoirGcBYjci9TyJd"
 
   console.log('WEBHOOK_SECRET', WEBHOOK_SECRET);
 
