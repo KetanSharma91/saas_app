@@ -7,16 +7,13 @@ import Header from "@/components/shared/Header";
 import { getUserImages } from "@/lib/actions/image.action";
 import { getUserById } from "@/lib/actions/user.action";
 
-// const Profile = async ({ searchParams }: SearchParamProps) => {
-//   const params = searchParams;
-//   const page = Number(params?.page) || 1;
+const Profile = async ({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) => {
+  // Await searchParams first
+  const paramsObj = await searchParams;
 
-const Profile = async ({ params, searchParams }: SearchParamProps) => {
-
-  const page = Number(searchParams?.page || 1);
-  const { id, type } = params;
-
-  console.log("id ", id, type);
+  // Now safely access page
+  const pageParam = paramsObj?.page;
+  const page = Array.isArray(pageParam) ? Number(pageParam[0]) : Number(pageParam) || 1;
 
   const { userId } = await auth();
 
