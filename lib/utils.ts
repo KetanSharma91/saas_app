@@ -83,32 +83,33 @@ export function removeKeysFromQuery({
 }
 
 // DEBOUNCE
-
-// export const debounce = (func: (...args: any[]) => void, delay: number) => {
-//   let timeoutId: NodeJS.Timeout | null;
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   return (...args: any[]) => {
-//     if (timeoutId) clearTimeout(timeoutId);
-//     timeoutId = setTimeout(() => func.apply(null, args), delay);
-//   };
-// };
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<T extends (...args: any[]) => void>(
-  func: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-  return (...args: Parameters<T>) => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-    timeoutId = setTimeout(() => {
-      func(...args);
-    }, delay);
+export const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout | null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (...args: any[]) => {
+    if (timeoutId) clearTimeout(timeoutId);
+    // eslint-disable-next-line prefer-spread
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
   };
-}
+};
+
+
+// export function debounce<T extends (...args: any[]) => void>(
+//   func: T,
+//   delay: number
+// ): (...args: Parameters<T>) => void {
+//   let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+//   return (...args: Parameters<T>) => {
+//     if (timeoutId) {
+//       clearTimeout(timeoutId);
+//     }
+//     timeoutId = setTimeout(() => {
+//       func(...args);
+//     }, delay);
+//   };
+// }
 
 
 // GE IMAGE SIZE
