@@ -10,7 +10,8 @@ import { redirect } from "next/navigation";
 import { v2 as cloudinary } from 'cloudinary';
 import mongoose from "mongoose";
 
-const populateUser = (query: mongoose.Query<any, ImageDocument>) => query.populate({ // (query: any)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const populateUser = (query: any) => query.populate({
     path: 'author',
     model: User,
     select: '_id firstName lastName clerkId'
