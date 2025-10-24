@@ -44,7 +44,7 @@ const Checkout = ({
             toast(
                 <div className='error-toast'>
                     <p className="font-semibold">Order canceled!</p>
-                    <p className="text-muted-foreground">Continue to shop around and checkout when you're ready</p>
+                    <p className="text-muted-foreground">Continue to shop around and checkout when you&apos;re ready</p>
                 </div>,
                 {
                     duration: 5000
@@ -62,6 +62,8 @@ const Checkout = ({
             credits,
             buyerId,
         };
+
+        console.log(transaction);
 
         button2Ref.current?.click();
         // await checkoutCredits(transaction);

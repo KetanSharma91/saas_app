@@ -51,12 +51,23 @@ const TransformedImage = ({
                         sizes={"(max-width: 767px) 100vw ,50vw"}
                         placeholder={dataUrl as PlaceholderValue}
                         className='transformed-image'
-                        onLoad={() => { setIsTransforming && setIsTransforming(false); }}
+                        // onLoad={() => { setIsTransforming && setIsTransforming(false); }}
+                        // onError={() => {
+                        //     debounce(() => {
+                        //         setIsTransforming && setIsTransforming(false);
+                        //     }, 8000)()
+                        // }}
+
+                        onLoad={() => {
+                            if (setIsTransforming) setIsTransforming(false);
+                        }}
+
                         onError={() => {
                             debounce(() => {
-                                setIsTransforming && setIsTransforming(false);
-                            }, 8000)()
+                                if (setIsTransforming) setIsTransforming(false);
+                            }, 8000)();
                         }}
+
 
                         {...transformationConfig}
                     />
@@ -67,13 +78,13 @@ const TransformedImage = ({
                                 alt='Transforming'
                                 height={50}
                                 width={50} />
-                                <p className='text-white/80'>Please wait...</p>
+                            <p className='text-white/80'>Please wait...</p>
                         </div>
                     )}
                 </div>
             ) : (
                 <div className="transformed-placeholder">
-                   Transforming Image
+                    Transforming Image
                 </div>
             )}
         </div>

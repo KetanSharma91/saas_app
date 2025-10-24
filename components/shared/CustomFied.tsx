@@ -1,5 +1,8 @@
 import React from "react";
-import { Control } from "react-hook-form";
+import {
+  Control,
+  ControllerRenderProps,
+} from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -12,9 +15,11 @@ import {
 
 import { formSchema } from "./TransformationForm";
 
+type FormValues = z.infer<typeof formSchema>;
+
 type CustomFieldProps = {
-  control: Control<z.infer<typeof formSchema>> | undefined;
-  render: (props: { field: any }) => React.ReactNode;
+  control: Control<FormValues>;
+  render: (props: { field: ControllerRenderProps<FormValues, keyof FormValues> }) => React.ReactNode;
   name: keyof z.infer<typeof formSchema>;
   formLabel?: string;
   className?: string;

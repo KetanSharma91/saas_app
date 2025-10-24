@@ -7,13 +7,29 @@ import Image from 'next/image';
 import { dataUrl, getImageSize } from '@/lib/utils';
 import { PlaceholderValue } from 'next/dist/shared/lib/get-img-props';
 
+type ImageState = {
+    publicId?: string;
+    width?: number;
+    height?: number;
+    secureURL?: string;
+};
+
 type MediaUploaderProps = {
     onValueChange: (value: string) => void;
-    setImage: React.Dispatch<any>;
+    setImage: React.Dispatch<React.SetStateAction<ImageState>>;
     publicId: string;
-    image: any;
+    image: ImageState;
     type: string;
-}
+};
+
+type UploadResult = {
+    info: {
+        public_id: string;
+        width: number;
+        height: number;
+        secure_url: string;
+    };
+};
 
 const MediaUploader = ({
     onValueChange,
@@ -23,15 +39,23 @@ const MediaUploader = ({
     type
 }: MediaUploaderProps) => {
 
-    const onUploadSuccessHandler = (result: any) => {
+    const onUploadSuccessHandler = (result: UploadResult) => {
 
-        setImage((prevState: any) => ({
+        // setImage((prevState: any) => ({
+        //     ...prevState,
+        //     publicId: result?.info?.public_id,
+        //     width: result?.info?.width,
+        //     height: result?.info?.height,
+        //     secureURL: result?.info?.secure_url,
+        // }))
+
+        setImage(prevState => ({
             ...prevState,
-            publicId: result?.info?.public_id,
-            width: result?.info?.width,
-            height: result?.info?.height,
-            secureURL: result?.info?.secure_url,
-        }))
+            publicId: result.info.public_id,
+            width: result.info.width,
+            height: result.info.height,
+            secureURL: result.info.secure_url,
+        }));
 
         onValueChange(result?.info?.public_id)
 
@@ -65,7 +89,7 @@ const MediaUploader = ({
                 multiple: false,
                 resourceType: "image"
             }}
-            onSuccess={onUploadSuccessHandler}
+            onSuccess={() => onUploadSuccessHandler} // onUploadSuccessHandler
             onError={onUploadErrorHandler}
         >
             {({ open }) => (

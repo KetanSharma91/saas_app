@@ -8,8 +8,9 @@ import Image from "../database/models/image.model";
 import { redirect } from "next/navigation";
 
 import { v2 as cloudinary } from 'cloudinary';
+import mongoose from "mongoose";
 
-const populateUser = (query: any) => query.populate({
+const populateUser = (query: mongoose.Query<any, ImageDocument>) => query.populate({ // (query: any)
     path: 'author',
     model: User,
     select: '_id firstName lastName clerkId'
@@ -122,7 +123,8 @@ export async function getAllImages({ limit = 9, page = 1, searchQuery = '' }: {
             .execute();
 
 
-        const resourceIds = resources.map((resource: any) => resource.public_id);
+        // const resourceIds = resources.map((resource: any) => resource.public_id);
+        const resourceIds = resources.map((resource: { public_id: string; }) => resource.public_id);
 
         let query = {};
 
