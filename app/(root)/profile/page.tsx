@@ -7,10 +7,17 @@ import Header from "@/components/shared/Header";
 import { getUserImages } from "@/lib/actions/image.action";
 import { getUserById } from "@/lib/actions/user.action";
 
-const Profile = async ({ searchParams }: SearchParamProps) => {
-  const params = searchParams;
+// const Profile = async ({ searchParams }: SearchParamProps) => {
+//   const params = searchParams;
+//   const page = Number(params?.page) || 1;
 
-  const page = Number(params?.page) || 1;
+const Profile = async ({ params, searchParams }: SearchParamProps) => {
+
+  const page = Number(searchParams?.page || 1);
+  const { id, type } = params;
+
+  console.log("id ", id, type);
+
   const { userId } = await auth();
 
   if (!userId) redirect("/sign-in");
