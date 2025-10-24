@@ -8,7 +8,6 @@ import Image from "../database/models/image.model";
 import { redirect } from "next/navigation";
 
 import { v2 as cloudinary } from 'cloudinary';
-import mongoose from "mongoose";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const populateUser = (query: any) => query.populate({
