@@ -6,7 +6,7 @@ import { auth } from '@clerk/nextjs/server';
 import { getUserById } from '@/lib/actions/user.action';
 import { redirect } from 'next/navigation';
 
-const AddTransformationTypePage = async ({ params }: { params: { type: string } }) => {
+const AddTransformationTypePage = async ({ params }: { params: Promise<Record<string, string>> }) => {
 
     // const AddTransformationTypePage = async ({ params: { type } }: SearchParamProps) => {
     const { type } = await params;

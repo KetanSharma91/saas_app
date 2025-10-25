@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useEffect, useState, useTransition } from "react"
+import { useEffect, useState, startTransition } from "react"
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { Button } from "../ui/button"
 import { updateCredits } from "@/lib/actions/user.action"
@@ -48,7 +48,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
   const [transformationConfig, settransformationConfig] = useState(config);
 
-  const [startTransition] = useTransition(); // isPending, 
+  // const [startTransition] = useTransition(); // isPending, 
 
   const router = useRouter();
 
@@ -179,6 +179,10 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
       await updateCredits(userId, creditFee)
     })
 
+    // startTransition(() => {
+    //   updateCredits(userId ?? "", creditFee);
+    // });
+
   }
 
   useEffect(() => {
@@ -284,7 +288,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                 <MediaUploader
                   onValueChange={field.onChange}
                   setImage={setImage}
-                  publicId={field.value}
+                  publicId={field.value ?? ""}
                   image={Image}
                   type={type}
                 />
