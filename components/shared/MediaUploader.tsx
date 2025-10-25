@@ -22,14 +22,14 @@ type MediaUploaderProps = {
     type: string;
 };
 
-type UploadResult = {
-    info: {
-        public_id: string;
-        width: number;
-        height: number;
-        secure_url: string;
-    };
-};
+// type UploadResult = {
+//     info: {
+//         public_id: string;
+//         width: number;
+//         height: number;
+//         secure_url: string;
+//     };
+// };
 
 const MediaUploader = ({
     onValueChange,
@@ -39,7 +39,8 @@ const MediaUploader = ({
     type
 }: MediaUploaderProps) => {
 
-    const onUploadSuccessHandler = (result: UploadResult) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const onUploadSuccessHandler = (result: any) => {
 
         // setImage((prevState: any) => ({
         //     ...prevState,
@@ -89,7 +90,7 @@ const MediaUploader = ({
                 multiple: false,
                 resourceType: "image"
             }}
-            onSuccess={() => onUploadSuccessHandler} // onUploadSuccessHandler
+            onSuccess={onUploadSuccessHandler} // onUploadSuccessHandler
             onError={onUploadErrorHandler}
         >
             {({ open }) => (
