@@ -8,7 +8,8 @@ import { getUserById } from "@/lib/actions/user.action";
 import { getImageById } from "@/lib/actions/image.action";
 
 // Update the TransformedImage
-const Page = async ({ params }: SearchParamProps) => {
+const Page = async ({ params }: { params: { id: string } }) => {
+
   const { id } = await params;
 
   const { userId } = await auth();
